@@ -4,6 +4,7 @@ const passport = require('passport');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 require('./config/database')
 require('./config/passport')
 const app = express();
@@ -30,6 +31,7 @@ app.use(passport.session());
 
 //* API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
 
 //* route not  found
