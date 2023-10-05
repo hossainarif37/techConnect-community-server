@@ -18,6 +18,8 @@ router
      * @throws {500} If there's an Internal server error
      */
     .post('/register', authController.registerUser)
+    //* User Login Route
+    .post('/login', authController.loginUser)
 
 
 

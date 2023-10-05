@@ -1,13 +1,32 @@
 const express = require('express');
 const cors = require('cors');
+const passport = require('passport');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const authRoutes = require('./routes/auth.routes');
 require('./config/database')
+require('./config/passport')
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
+//* Session management
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+    secret: process.env.SESSION_SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+        mongoUrl: process.env.DB_CONNECTION_URL,
+        collectionName: 'sessions'
+    })
+    // cookie: { secure: true }
+}))
+//* Passport and Session Intialize
+app.use(passport.initialize());
+app.use(passport.session());
 
 //* API Routes
 app.use('/api/auth', authRoutes);
