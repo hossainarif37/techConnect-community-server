@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const authRoutes = require('./routes/auth.routes');
 require('./config/database')
 const app = express();
 
@@ -7,10 +8,10 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
-//* home route
-app.get('/', (req, res) => {
-    res.send('Welcome to the server')
-})
+
+//* API Routes
+app.use('/api/auth', authRoutes);
+
 
 //* route not  found
 app.use((req, res, next) => {
@@ -19,8 +20,17 @@ app.use((req, res, next) => {
 
 //* server error
 app.use((err, req, res, next) => {
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({
+            success: false,
+            error: 'Name, Email and Password field are required'
+        })
+    }
     console.error(err.stack)
-    res.status(500).send('Something went wrong!')
+    res.status(500).json({
+        success: false,
+        error: 'Internal server error!'
+    })
 })
 
 
