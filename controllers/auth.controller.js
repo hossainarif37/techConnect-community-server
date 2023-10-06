@@ -2,6 +2,7 @@ const { default: mongoose, } = require("mongoose");
 const passport = require('passport');
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
+const { ValidationError } = require("../errorHandlers/validationError");
 const saltRounds = 10;
 
 //* User Registration Controller 
@@ -19,8 +20,7 @@ exports.registerUser = async (req, res, next) => {
         //* hash user password
         bcrypt.hash(password, saltRounds, async function (err, hash) {
             if (err?.message === 'data and salt arguments required') {
-                const validationError = new Error();
-                validationError.name = 'ValidationError';
+                const validationError = new ValidationError('Name, Email and Password field are required');
                 return next(validationError);
             }
             //* user info

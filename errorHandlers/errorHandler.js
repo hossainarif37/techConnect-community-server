@@ -1,8 +1,10 @@
+const { ValidationError } = require("./validationError");
+
 const erroHandler = (err, req, res, next) => {
-    if (err.name === 'ValidationError') {
+    if (err instanceof ValidationError) {
         return res.status(400).json({
             success: false,
-            error: 'Name, Email and Password field are required'
+            error: err.message
         })
     }
     console.error(err.stack)
