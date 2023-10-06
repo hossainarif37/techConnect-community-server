@@ -8,7 +8,7 @@ const saltRounds = 10;
 //* User Registration Controller 
 exports.registerUser = async (req, res, next) => {
     try {
-        const { email, password, name } = req.body;
+        const { email, password, name, profilePicture } = req.body;
         const userExist = await User.findOne({ email });
         //* Check user is already exist or not in the database
         if (userExist) {
@@ -27,7 +27,8 @@ exports.registerUser = async (req, res, next) => {
             const newUser = new User({
                 name,
                 email,
-                password: hash
+                password: hash,
+                profilePicture
             });
             //* save the user
             await newUser.save();

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/article.controller');
+const { isAuthenticateUser } = require('../middleware/authorization');
 
 router
     //* Creates a new article
@@ -19,7 +20,19 @@ router
  * @throws {400} If required fields (`title`, `content`, `category` or `author`) are missing.
  * @throws {500} If there's an Internal Server Error.
  */
-    .post('/', articleController.createArticle);
+    .post('/', isAuthenticateUser, articleController.createArticle)
+
+    //* Get all articles
+    /**
+ * @route GET /api/articles
+ * @description Get all articles.
+ * @access Public
+ * 
+ * @returns {object} - List of all articles
+ * 
+ * @throws {500} If there's an internal server error
+ */
+    .get('/', articleController.getAllArticles)
 
 
 
