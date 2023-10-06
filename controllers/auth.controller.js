@@ -71,3 +71,19 @@ exports.loginUser = async (req, res, next) => {
         });
     })(req, res, next);
 }
+
+//* User Logout
+exports.logOutUser = async (req, res, next) => {
+    try {
+        req.logout((err) => {
+            console.log(err);
+            if (err) {
+                return res.status(500).send('Something went wrong!');
+            }
+            //    res.redirect('/');
+            res.send({ isLogout: true });
+        });
+    } catch (error) {
+        next(error);
+    }
+}

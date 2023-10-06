@@ -35,6 +35,14 @@ router
      */
     .post('/login', authController.loginUser)
 
+    //* User logout route
+    /**
+     * @route POST /api/auth/logout
+     * @description Log out the current user
+     * @access Private
+    */
+    .get('/logout', authController.logOutUser);
+
 
 
 module.exports = router;
