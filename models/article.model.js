@@ -16,11 +16,12 @@ const articleSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, 'Author is required']
+        required: [true, 'Author is required'],
+        cast: 'Provide a valid author ID',
     },
     comments: [{
         type: Schema.Types.ObjectId,
-        ref: 'Comment'
+        ref: 'Comment',
     }],
     createdAt: {
         type: Date,

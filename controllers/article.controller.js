@@ -30,3 +30,4 @@ exports.getAllArticles = async (req, res, next) => {
         next(error);
     }
 }
+

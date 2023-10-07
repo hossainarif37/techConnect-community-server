@@ -20,6 +20,21 @@ router
     */
     .get('/profile', isAuthenticateUser, userController.getUserProfile)
 
+    //* Get articles by user ID
+    /**
+    * @route GET /api/user/:id/articles
+    * @description Get articles by user ID
+    * @access Public
+    *
+    * @param {string} id - User's ID
+    *
+    * @returns {object} - List of articles by the user
+    *
+    * @throws {404} If no articles are found for the user
+    * @throws {500} If there's an internal server error
+    */
+    .get('/:id/articles', userController.getUserArticles)
+
 
 
 module.exports = router;
