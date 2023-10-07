@@ -1,7 +1,6 @@
 const errorHandler = (err, req, res, next) => {
     if (err.name === 'ValidationError') {
-        const erroMessage = err.message.replace(/(?<=: )\w+: /, "");
-        return res.status(400).json({ success: false, error: erroMessage });
+        return res.status(400).json({ success: false, error: err.message });
     }
     else if (err.name === 'CastError') {
         return res.status(400).json({ error: err.message })

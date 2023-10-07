@@ -33,7 +33,7 @@ router
     * @throws {404} If no articles are found for the user
     * @throws {500} If there's an internal server error
     */
-    .get('/:id/articles', userController.getUserArticles)
+    .get('/:authorId/articles', userController.getUserArticles)
 
 
 

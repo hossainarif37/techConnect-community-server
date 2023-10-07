@@ -5,6 +5,7 @@ const session = require('express-session');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const articleRoutes = require('./routes/article.routes');
+const commentRoutes = require('./routes/comment.routes');
 
 require('./config/database')
 require('./config/passport')
@@ -28,6 +29,7 @@ app.use(passport.session());
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/article', articleRoutes);
+app.use('/api/comment', commentRoutes);
 
 
 //* route not  found
