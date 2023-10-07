@@ -8,8 +8,8 @@ router
     //* Get the current user's profile
     //* Route 
     /**
-    * @route GET /profile
-    * @description Retrieve the user's profile information if authenticated.
+    * @route GET /current-user
+    * @description Get if authenticated.
     * @access Private (Requires user authentication)
     */
     //* Middleware
@@ -18,22 +18,22 @@ router
      * @description Check if the user is authenticated before allowing access to certain routes.
      * @access Private
     */
-    .get('/profile', isAuthenticateUser, userController.getUserProfile)
+    .get('/current-user', isAuthenticateUser, userController.getCurrentUser)
 
     //* Get articles by user ID
     /**
-    * @route GET /api/user/:id/articles
-    * @description Get articles by user ID
+    * @route GET /api/user/profile/:userId
+    * @description Get a user's profile by ID.
     * @access Public
-    *
-    * @param {string} id - User's ID
-    *
-    * @returns {object} - List of articles by the user
-    *
-    * @throws {404} If no articles are found for the user
-    * @throws {500} If there's an internal server error
+    * 
+    * @params userId - The ID of the user to retrieve the profile for.
+    * 
+    * @returns {object} - User profile information, including articles, followers, and following.
+    * 
+    * @throws {404} If the user is not found.
+    * @throws {500} If there's an internal server error.
     */
-    .get('/:authorId/articles', userController.getUserArticles)
+    .get('/profile/:userId', userController.getUserProfile)
 
 
 

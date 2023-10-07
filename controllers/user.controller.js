@@ -1,18 +1,28 @@
-const { isAuthenticateUser } = require("../middleware/authorization");
-const Article = require("../models/article.model")
+const User = require("../models/user.model")
 
-exports.getUserProfile = async (req, res) => {
+exports.getCurrentUser = async (req, res) => {
     res.status(200).json(req.user);
 }
 
 //* Get user articles by their ID
-exports.getUserArticles = async (req, res, next) => {
+exports.getUserProfile = async (req, res, next) => {
     try {
-        const articles = await Article.find({ author: req.params.authorId });
-        if (!articles.length) {
-            return res.status(404).json({ message: 'Articles not found' })
+        let populateFields = 'articles followers following';
+        if (req.user.id === req.params.userId) {
+            // If the user is viewing their own profile, populate the 'savedArticles' field
+            populateFields += ' savedArticles';
         }
-        res.status(200).json(articles);
+
+        const userProfile = await User.findById(req.params.userId).populate(populateFields);
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+        res.status(200).json(userProfile);
+        // const articles = await Article.find({ author: req.params.userId });
+        // if (!articles.length) {
+        //     return res.status(404).json({ message: 'Articles not found' })
+        // }
+        // res.status(200).json(articles);
     } catch (error) {
         console.log(error.message);
         next(error);
