@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
+const { isAuthenticateUser } = require('../middleware/authorization');
 
 router
     //* User Registration Route
@@ -41,7 +42,7 @@ router
      * @description Log out the current user
      * @access Private
     */
-    .get('/logout', authController.logOutUser);
+    .get('/logout', isAuthenticateUser, authController.logOutUser);
 
 
 

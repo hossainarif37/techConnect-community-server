@@ -32,7 +32,7 @@ app.use('/api/article', articleRoutes);
 
 //* route not  found
 app.use((req, res, next) => {
-    res.json({ message: 'route not found' })
+    res.status(404).json({ message: 'route not found' })
 })
 
 //* server error

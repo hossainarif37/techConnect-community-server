@@ -6,7 +6,6 @@ exports.createArticle = async (req, res, next) => {
     try {
         const article = new Article({ ...req.body, author: req.user._id });
         await article.save();
-
         // * Get the user's ObjectId
         const authorId = req.user._id;
         //* Update the user's document to include the new article's ObjectId

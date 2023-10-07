@@ -3,16 +3,16 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
-        required: true,
+        required: [true, 'Email is required'],
         unique: true
     },
     password: {
         type: String,
-        required: true
+        required: [true, 'Password is required'],
     },
     name: {
         type: String,
-        required: true
+        required: [true, 'Name is required'],
     },
     profilePicture: {
         type: String,
@@ -42,16 +42,7 @@ const userSchema = new mongoose.Schema({
             ref: 'Article'
         }
     ],
-})
 
-userSchema.pre('save', function (next) {
-    if (!this.name || !this.email || !this.password) {
-        const validationError = new Error()
-        validationError.name = 'ValidationError'
-        next(validationError);
-    } else {
-        next();
-    }
 })
 
 module.exports = mongoose.model('User', userSchema);

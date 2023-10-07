@@ -2,7 +2,6 @@ const { default: mongoose, } = require("mongoose");
 const passport = require('passport');
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
-const { ValidationError } = require("../errorHandlers/validationError");
 const saltRounds = 10;
 
 //* User Registration Controller 
@@ -19,31 +18,30 @@ exports.registerUser = async (req, res, next) => {
         }
         //* hash user password
         bcrypt.hash(password, saltRounds, async function (err, hash) {
-            if (err?.message === 'data and salt arguments required') {
-                const validationError = new ValidationError('Name, Email and Password field are required');
-                return next(validationError);
+            try {
+                //* user info
+                const newUser = new User({
+                    name,
+                    email,
+                    password: hash,
+                    profilePicture
+                });
+
+                //* save the user
+                await newUser.save();
+
+                return res.status(201).json({
+                    success: true,
+                    message: 'User registered successfully.'
+                })
+            } catch (error) {
+                next(error)
             }
-            //* user info
-            const newUser = new User({
-                name,
-                email,
-                password: hash,
-                profilePicture
-            });
-            //* save the user
-            await newUser.save();
-            return res.status(201).json({
-                success: true,
-                message: 'User registered successfully.'
-            })
 
         });
 
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Internal Server Error',
-        });
+        next(error);
     }
 }
 
@@ -77,9 +75,8 @@ exports.loginUser = async (req, res, next) => {
 exports.logOutUser = async (req, res, next) => {
     try {
         req.logout((err) => {
-            console.log(err);
             if (err) {
-                return res.status(500).send('Something went wrong!');
+                return next(err);
             }
             //    res.redirect('/');
             res.send({ isLogout: true });

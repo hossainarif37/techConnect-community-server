@@ -1,23 +1,22 @@
 const { default: mongoose, Schema, model } = require('mongoose');
-const { ValidationError } = require('../errorHandlers/validationError');
 
 const articleSchema = new Schema({
     title: {
         type: String,
-        required: true
+        required: [true, 'Title is required']
     },
     content: {
         type: String,
-        required: true
+        required: [true, 'Content is required']
     },
     category: {
         type: String,
-        required: true
+        required: [true, 'Category is required']
     },
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: [true, 'Author is required']
     },
     comments: [{
         type: Schema.Types.ObjectId,
@@ -29,13 +28,5 @@ const articleSchema = new Schema({
     }
 });
 
-articleSchema.pre('save', function (next) {
-    const { title, content, category, author } = this;
-    if (!title || !content || !category || !author) {
-        const validationError = new ValidationError('Title, Content, Category and Author is Required');
-        return next(validationError);
-    }
-    next();
-})
 
 module.exports = model('Article', articleSchema);
