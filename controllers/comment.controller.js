@@ -1,7 +1,7 @@
 const Comment = require('../models/comment.model');
 const Article = require('../models/article.model');
 
-
+//* Creates a new comment for an article
 exports.createComment = async (req, res, next) => {
     try {
         const newComment = new Comment(req.body);
@@ -15,5 +15,16 @@ exports.createComment = async (req, res, next) => {
 
     } catch (error) {
         next(error)
+    }
+}
+
+//* Get all comments for a specific article
+exports.getCommentsByArticleId = async (req, res, next) => {
+    try {
+        const articleId = req.params.articleId;
+        const comments = await Comment.find({ article: articleId }, '-__v').populate('author', '_id name profilePicture');
+        res.status(200).json(comments);
+    } catch (error) {
+        next(error);
     }
 }

@@ -20,6 +20,21 @@ router
      */
     .post('/', commentController.createComment)
 
+    //* Get all comments for a specific article
+    /**
+     * @route GET /api/comments/:articleId
+     * @description Retrieve all comments for a specific article.
+     * @access Public
+     * 
+     * @param {string} articleId - The unique ID of the article.
+     * 
+     * @returns {object[]} - An array of comments for the article.
+     * 
+     * @throws {500} If there's an internal server error.
+     */
+
+    .get('/:articleId', commentController.getCommentsByArticleId)
+
 
 
 module.exports = router;
