@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
-const { isAuthenticateUser } = require('../middleware/authorization');
+const {checkAuth} = require('../middleware/authorization');
 
 
 router
@@ -18,7 +18,7 @@ router
      * @description Check if the user is authenticated before allowing access to certain routes.
      * @access Private
     */
-    .get('/current-user', isAuthenticateUser, userController.getCurrentUser)
+    .get('/current-user', checkAuth, userController.getCurrentUser)
 
     //* Get articles by user ID
     /**
@@ -33,7 +33,7 @@ router
     * @throws {404} If the user is not found.
     * @throws {500} If there's an internal server error.
     */
-    .get('/profile/:userId', userController.getUserProfile)
+    .get('/profile/:userId',checkAuth, userController.getUserProfile)
 
 
 

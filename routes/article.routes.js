@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/article.controller');
-const { isAuthenticateUser } = require('../middleware/authorization');
 
 router
     //* Creates a new article
@@ -27,7 +26,7 @@ router
      * @description Check if the user is authenticated before allowing access to certain routes.
      * @access Private
     */
-    .post('/', isAuthenticateUser, articleController.createArticle)
+    .post('/',  articleController.createArticle)
 
     //* Get all articles
     /**

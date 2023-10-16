@@ -1,7 +1,15 @@
 const User = require("../models/user.model")
 
-exports.getCurrentUser = async (req, res) => {
-    res.status(200).json(req.user);
+exports.getCurrentUser = async (req, res, next) => {
+    try {
+        res.status(200).json({
+            success: true,
+            user: req.user
+        })
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
 }
 
 //* Get user articles by their ID

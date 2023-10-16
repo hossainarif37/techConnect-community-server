@@ -1,39 +1,25 @@
-const User = require('../models/user.model');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcrypt');
-
-
+const User = require('../models/user.model')
+require('dotenv').config();
+const JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+const opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = process.env.JWT_SECRET_KEY;
 passport.use(
-    new LocalStrategy({ usernameField: 'email', passwordField: 'password' }, async (email, password, done) => {
+    new JwtStrategy(opts, async (jwt_payload, done) => {
         try {
-            const user = await User.findOne({ email });
-            if (!user) {
+            const user = await User.findOne({ _id: jwt_payload.id });
+
+            if (user) {
+                return done(null, user);
+            } else {
                 return done(null, false);
             }
-            // Verify user password
-            bcrypt.compare(password, user.password, function (err, result) {
-                if (result) {
-                    return done(null, user);
-                } else {
-                    return done(err, user, { passwordError: true });
-                }
-            });
-        } catch (error) {
-            return done(error);
+        } catch (err) {
+            return done(err, false);
         }
-    }
-    ));
+    })
+);
 
-passport.serializeUser((user, done) => {
-    done(null, user._id);
-});
-
-passport.deserializeUser(async (_id, done) => {
-    try {
-        const user = await User.findById(_id);
-        done(null, user);
-    } catch (error) {
-        done(error, false);
-    }
-});
+module.exports = passport;

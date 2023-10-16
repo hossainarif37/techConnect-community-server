@@ -1,0 +1,21 @@
+# Node.js
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+
+# Production build
+build/
+dist/
+
+.vscode/
