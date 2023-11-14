@@ -1,6 +1,8 @@
 const passport = require('passport');
 
 const checkAuth = (req, res, next) => {
+    console.log('render');
+    console.log(req.headers.authorization);
     passport.authenticate('jwt', { session: false }, (err, user) => {
         if (err || !user) {
             // Handle the unauthorized user case here

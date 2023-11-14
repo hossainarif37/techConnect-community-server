@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/article.controller');
+const { checkAuth } = require('../middleware/authorization');
 
 router
     //* Creates a new article
@@ -26,7 +27,7 @@ router
      * @description Check if the user is authenticated before allowing access to certain routes.
      * @access Private
     */
-    .post('/',  articleController.createArticle)
+    .post('/',checkAuth,  articleController.createArticle)
 
     //* Get all articles
     /**
@@ -38,7 +39,7 @@ router
  * 
  * @throws {500} If there's an internal server error
  */
-    .get('/', articleController.getAllArticles)
+    .get('/',checkAuth, articleController.getAllArticles)
 
 
 

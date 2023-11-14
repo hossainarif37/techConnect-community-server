@@ -25,7 +25,7 @@ app.use(passport.initialize());
 
 //* home route
 app.get('/', (req, res) => {
-    res.send('Welcome to the server')
+    res.send('Welcome to TechConnect Community server')
 })
 
 //* API Routes
