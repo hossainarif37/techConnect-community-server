@@ -1,4 +1,12 @@
-const { default: mongoose, Schema, model } = require('mongoose');
+import mongoose, { Document, Schema, model } from "mongoose";
+
+
+export interface IComment extends Document {
+    content: string;
+    author: Schema.Types.ObjectId;
+    article: Schema.Types.ObjectId;
+    createdAt: Date;
+}
 
 const commentSchema = new Schema({
     content: {

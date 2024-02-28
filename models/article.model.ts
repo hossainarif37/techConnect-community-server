@@ -1,9 +1,19 @@
-const { default: mongoose, Schema, model } = require('mongoose');
+import mongoose, { Document, Schema, model } from "mongoose";
+
+
+export interface IArticle extends Document {
+    title: string;
+    content: string;
+    category: string;
+    author: Schema.Types.ObjectId;
+    comments: Schema.Types.ObjectId[];
+    createdAt: Date;
+}
 
 const articleSchema = new Schema({
     title: {
         type: String,
-        required: [true, 'Title is required']
+        // required: [true, 'Title is required']
     },
     content: {
         type: String,

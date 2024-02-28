@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
-const {checkAuth} = require('../middleware/authorization');
+const { checkAuth } = require('../middleware/authorization');
 
 
 router
@@ -33,7 +33,7 @@ router
     * @throws {404} If the user is not found.
     * @throws {500} If there's an internal server error.
     */
-    .get('/profile/:userId',checkAuth, userController.getUserProfile)
+    .get('/profile/:userId', checkAuth, userController.getUserProfile)
 
 
 

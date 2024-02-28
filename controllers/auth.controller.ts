@@ -1,3 +1,5 @@
+import { NextFunction, Request, Response } from "express";
+
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -5,7 +7,7 @@ require('dotenv').config();
 const saltRounds = 10;
 
 //* User Registration Controller 
-exports.registerUser = async (req, res, next) => {
+exports.registerUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password, name, profilePicture } = req.body;
         const userExist = await User.findOne({ email });
@@ -17,7 +19,7 @@ exports.registerUser = async (req, res, next) => {
             })
         }
         //* hash user password
-        bcrypt.hash(password, saltRounds, async function (err, hash) {
+        bcrypt.hash(password, saltRounds, async function (err: any, hash: any) {
             try {
                 //* user info
                 const newUser = new User({
@@ -46,7 +48,7 @@ exports.registerUser = async (req, res, next) => {
 }
 
 //* User Login Controller 
-exports.loginUser = async (req, res, next) => {
+exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
         //* Validate that 'email' and 'password' fields are present in the request body
@@ -64,7 +66,7 @@ exports.loginUser = async (req, res, next) => {
             email: user.email
         }
 
-        bcrypt.compare(password, user.password, function (err, result) {
+        bcrypt.compare(password, user.password, function (err: any, result: any) {
             if (result) {
                 //* Generate jwt token
                 const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
@@ -87,7 +89,7 @@ exports.loginUser = async (req, res, next) => {
 }
 
 //* User Logout
-exports.logOutUser = async (req, res, next) => {
+exports.logOutUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         req.logout((err) => {
             if (err) {

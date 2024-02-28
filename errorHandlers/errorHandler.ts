@@ -1,4 +1,6 @@
-const errorHandler = (err, req, res, next) => {
+import { NextFunction, Request, Response } from "express";
+
+const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
     if (err.name === 'ValidationError') {
         return res.status(400).json({ success: false, error: err.message });
     }

@@ -1,3 +1,5 @@
+import { NextFunction, Request, Response } from "express";
+
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -24,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 //* home route
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.send('Welcome to TechConnect Community server')
 })
 
@@ -36,7 +38,7 @@ app.use('/api/comment', commentRoutes);
 
 
 //* route not  found
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
     res.status(404).json({ message: 'route not found' })
 })
 

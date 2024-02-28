@@ -1,13 +1,16 @@
+import { NextFunction, Request, Response } from "express";
+import { IUser } from "../models/user.model";
+
 const Article = require('../models/article.model')
 const User = require('../models/user.model')
 
 //* Creates a new article
-exports.createArticle = async (req, res, next) => {
+exports.createArticle = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const article = new Article({ ...req.body, author: req.user._id });
+        const article = new Article({ ...req.body, author: (req.user as IUser)._id });
         await article.save();
         // * Get the user's ObjectId
-        const authorId = req.user._id;
+        const authorId = (req.user as IUser)._id;
         //* Update the user's document to include the new article's ObjectId
         await User.findByIdAndUpdate(authorId, { $push: { articles: article._id } });
 
@@ -22,7 +25,7 @@ exports.createArticle = async (req, res, next) => {
 }
 
 //* Get all articles
-exports.getAllArticles = async (req, res, next) => {
+exports.getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const articles = await Article.find().populate('author', '-password -email -savedArticles');
         res.status(200).json(articles)

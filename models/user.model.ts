@@ -1,6 +1,19 @@
-const mongoose = require('mongoose');
+import mongoose, { Document, model, mongo, Schema } from "mongoose";
 
-const userSchema = new mongoose.Schema({
+
+export interface IUser extends Document {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    email: string;
+    password: string;
+    profilePicture: string;
+    followers?: mongoose.Types.ObjectId[];
+    following?: mongoose.Types.ObjectId[];
+    articles?: mongoose.Types.ObjectId[];
+    savedArticles?: mongoose.Types.ObjectId[];
+}
+
+const userSchema = new Schema({
     email: {
         type: String,
         required: [true, 'Email is required'],
@@ -45,4 +58,4 @@ const userSchema = new mongoose.Schema({
 
 })
 
-module.exports = mongoose.model('User', userSchema);
+export default model<IUser>('User', userSchema);

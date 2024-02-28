@@ -5,8 +5,8 @@ require('dotenv').config();
 mongoose
     .connect(process.env.DB_CONNECTION_URL)
     .then(() => {
-        console.log('Database Connected'.blue);
+        console.log(colors.blue('Database Connected'));
     })
-    .catch(err => {
-        console.log(err.message);
+    .catch((error: any) => {
+        console.log((error as Error).message);
     })
