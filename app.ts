@@ -31,10 +31,10 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 //* API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/article', articleRoutes);
-app.use('/api/comment', commentRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/article', articleRoutes);
+app.use('/api/v1/comment', commentRoutes);
 
 
 //* route not  found

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-const User = require('../models/user.model');
+import User from '../models/user.model';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -37,12 +37,14 @@ exports.registerUser = async (req: Request, res: Response, next: NextFunction) =
                     message: 'User registered successfully.'
                 })
             } catch (error) {
+                console.log((error as Error).message);
                 next(error)
             }
 
         });
 
     } catch (error) {
+        console.log((error as Error).message);
         next(error);
     }
 }
@@ -51,12 +53,16 @@ exports.registerUser = async (req: Request, res: Response, next: NextFunction) =
 exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
+
+
         //* Validate that 'email' and 'password' fields are present in the request body
         if (!email || !password) {
             return res.status(400).json({ success: false, error: 'Email or Password is required' })
         }
 
+
         const user = await User.findOne({ email });
+        console.log('hey');
         if (!user) {
             return res.status(404).send({ success: false, error: 'User not found' })
         }
@@ -84,6 +90,7 @@ exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
 
     } catch (error) {
+        console.log((error as Error).message);
         next(error);
     }
 }
@@ -93,12 +100,14 @@ exports.logOutUser = async (req: Request, res: Response, next: NextFunction) => 
     try {
         req.logout((err) => {
             if (err) {
+                console.log((err as Error).message);
                 return next(err);
             }
             //    res.redirect('/');
             res.send({ isLogout: true });
         });
     } catch (error) {
+        console.log((error as Error).message);
         next(error);
     }
 }

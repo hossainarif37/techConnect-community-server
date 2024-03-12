@@ -10,7 +10,7 @@ exports.getCurrentUser = async (req: Request, res: Response, next: NextFunction)
             user: req.user
         })
     } catch (error) {
-        console.log(error);
+        console.log((error as Error).message);
         next(error);
     }
 }
