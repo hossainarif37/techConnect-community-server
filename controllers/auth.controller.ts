@@ -99,7 +99,7 @@ exports.logOutUser = async (req: Request, res: Response, next: NextFunction) => 
     try {
         req.logout((err) => {
             if (err) {
-                console.log((err as Error).message);
+                console.log((err as Error));
                 return next(err);
             }
             //    res.redirect('/');
