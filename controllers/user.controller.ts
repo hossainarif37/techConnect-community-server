@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IUser } from "../models/user.model";
 
-const User = require("../models/user.model")
+import User from "../models/user.model"
 
 exports.getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
     try {

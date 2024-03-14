@@ -15,7 +15,7 @@ exports.registerUser = async (req: Request, res: Response, next: NextFunction) =
         if (userExist) {
             return res.status(409).json({
                 success: false,
-                error: 'Email already exist. Please use a different email or log in'
+                message: 'Email already exist. Please use a different email or log in'
             })
         }
         //* hash user password
@@ -57,14 +57,13 @@ exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
         //* Validate that 'email' and 'password' fields are present in the request body
         if (!email || !password) {
-            return res.status(400).json({ success: false, error: 'Email or Password is required' })
+            return res.status(400).json({ success: false, message: 'Email or Password is required' })
         }
 
 
         const user = await User.findOne({ email });
-        console.log('hey');
         if (!user) {
-            return res.status(404).send({ success: false, error: 'User not found' })
+            return res.status(404).send({ success: false, message: 'User not found' })
         }
 
         const payload = {
@@ -83,7 +82,7 @@ exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
                     user
                 })
             } else {
-                res.status(401).send({ success: false, error: 'Wrong password' })
+                res.status(401).send({ success: false, message: 'Wrong password' })
             }
         });
 
