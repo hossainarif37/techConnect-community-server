@@ -10,7 +10,7 @@ exports.getCurrentUser = async (req: Request, res: Response, next: NextFunction)
             user: req.user
         })
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Get Current User Controller: ', (error as Error).message);
         next(error);
     }
 }
@@ -35,7 +35,7 @@ exports.getUserProfile = async (req: Request, res: Response, next: NextFunction)
         // }
         // res.status(200).json(articles);
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Get User Profile Controller: ', (error as Error).message);
         next(error);
     }
 }

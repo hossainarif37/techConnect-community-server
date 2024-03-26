@@ -16,7 +16,7 @@ exports.createComment = async (req: Request, res: Response, next: NextFunction) 
         res.status(201).json({ success: true, message: 'Comment created successfully' })
 
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Create Comment Controller: ', (error as Error).message);
         next(error)
     }
 }
@@ -28,7 +28,7 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
         const comments = await Comment.find({ article: articleId }, '-__v').populate('author', '_id name profilePicture');
         res.status(200).json(comments);
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Get Comments By ArctileId Controller: ', (error as Error).message);
         next(error);
     }
 }

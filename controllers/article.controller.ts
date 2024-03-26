@@ -20,7 +20,7 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
             article
         })
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Create Article Controller: ', (error as Error).message);
         next(error);
     }
 }
@@ -31,7 +31,7 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
         const articles = await Article.find().populate('author', '-password -email -savedArticles');
         res.status(200).json(articles)
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Get All Articles Controller: ', (error as Error).message);
         next(error);
     }
 }

@@ -37,14 +37,14 @@ exports.registerUser = async (req: Request, res: Response, next: NextFunction) =
                     message: 'User registered successfully.'
                 })
             } catch (error) {
-                console.log((error as Error).message);
+                console.log('Register User Controller at Bcrypt function: ', (error as Error).message);
                 next(error)
             }
 
         });
 
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Register User Controller: ', (error as Error).message);
         next(error);
     }
 }
@@ -89,7 +89,7 @@ exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
 
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Login User Controller: ', (error as Error).message);
         next(error);
     }
 }
@@ -99,14 +99,14 @@ exports.logOutUser = async (req: Request, res: Response, next: NextFunction) => 
     try {
         req.logout((err) => {
             if (err) {
-                console.log((err as Error));
+                console.log('Logout User Controller: ', (err as Error));
                 return next(err);
             }
             //    res.redirect('/');
             res.send({ isLogout: true });
         });
     } catch (error) {
-        console.log((error as Error).message);
+        console.log('Logout User Controller at Catch: ', (error as Error).message);
         next(error);
     }
 }
