@@ -17,7 +17,6 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
         res.status(201).json({
             success: true,
             message: "Article Saved Successfully",
-            article
         })
     } catch (error) {
         console.log('Create Article Controller: ', (error as Error).message);
@@ -28,7 +27,7 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
 //* Get all articles
 exports.getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const articles = await Article.find().populate('author', '-password -email -savedArticles');
+        const articles = await Article.find().sort({ createdAt: -1 }).populate('author', '-password -email -savedArticles');
         res.status(200).json(articles)
     } catch (error) {
         console.log('Get All Articles Controller: ', (error as Error).message);
