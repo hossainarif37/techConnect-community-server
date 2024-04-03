@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { IUser } from "../models/user.model";
 
 const Article = require('../models/article.model')
-const User = require('../models/user.model')
+import User from '../models/user.model';
 
 //* Creates a new article
 exports.createArticle = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,12 +11,13 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
         await article.save();
         // * Get the user's ObjectId
         const authorId = (req.user as IUser)._id;
+
         //* Update the user's document to include the new article's ObjectId
         await User.findByIdAndUpdate(authorId, { $push: { articles: article._id } });
 
         res.status(201).json({
             success: true,
-            message: "Article Saved Successfully",
+            message: "Post Created Successfully",
         })
     } catch (error) {
         console.log('Create Article Controller: ', (error as Error).message);
