@@ -17,7 +17,6 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
         res.status(201).json({
             success: true,
             message: "Article Saved Successfully",
-            article
         })
     } catch (error) {
         console.log('Create Article Controller: ', (error as Error).message);
