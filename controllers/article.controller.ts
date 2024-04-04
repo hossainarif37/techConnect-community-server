@@ -36,3 +36,17 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
+
+//* Get Articles by User ID
+exports.getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const articles = await Article.find({ author: req.params.userId }).sort({ createdAt: -1 });
+        if (!articles.length) {
+            return res.status(404).json({ success: false, message: 'Articles not found' })
+        }
+        res.status(200).json({ success: false, articles });
+    } catch (error) {
+        console.log('Get Articles By User Controller: ', (error as Error).message);
+        next(error);
+    }
+}

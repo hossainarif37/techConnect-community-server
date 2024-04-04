@@ -27,7 +27,7 @@ router
      * @description Check if the user is authenticated before allowing access to certain routes.
      * @access Private
     */
-    .post('/',checkAuth,  articleController.createArticle)
+    .post('/', checkAuth, articleController.createArticle)
 
     //* Get all articles
     /**
@@ -39,11 +39,11 @@ router
  * 
  * @throws {500} If there's an internal server error
  */
-    .get('/',checkAuth, articleController.getAllArticles)
+    .get('/', checkAuth, articleController.getAllArticles)
 
 
 
-
+    .get('/:userId', checkAuth, articleController.getArticlesByUser)
 
 
 

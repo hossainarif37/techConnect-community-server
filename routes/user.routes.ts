@@ -33,7 +33,7 @@ router
     * @throws {404} If the user is not found.
     * @throws {500} If there's an internal server error.
     */
-    .get('/profile/:userId', checkAuth, userController.getUserProfile)
+    .get('/profile/:userId', userController.getUserProfile)
 
 
 
