@@ -29,11 +29,7 @@ exports.getUserProfile = async (req: Request, res: Response, next: NextFunction)
             return res.status(404).json({ message: 'User not found' })
         }
         res.status(200).json({ success: true, user });
-        // const articles = await Article.find({ author: req.params.userId });
-        // if (!articles.length) {
-        //     return res.status(404).json({ message: 'Articles not found' })
-        // }
-        // res.status(200).json(articles);
+
     } catch (error) {
         console.log('Get User Profile Controller: ', (error as Error).message);
         next(error);
