@@ -48,7 +48,6 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
     try {
         // Assuming categories is an array of categories from the query parameters
         const categories = req.query.category;
-        console.log(categories);
 
         /// Initialize the query object with the defined type
         let query: QueryType = { author: req.params.userId };
