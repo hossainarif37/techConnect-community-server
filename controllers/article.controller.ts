@@ -47,13 +47,18 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
 exports.getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Assuming categories is an array of categories from the query parameters
-        const categories = req.query.category;
+        let categories = req.query.categories;
+
+        if (typeof categories === 'string' && categories) {
+            categories = categories.split(',');
+        }
 
         /// Initialize the query object with the defined type
         let query: QueryType = { author: req.params.userId };
 
         // If categories are provided and is an array, add them to the query
         if (Array.isArray(categories) && categories.length > 0) {
+            console.log('Adding categories');
             query.category = { $in: categories.map(category => String(category)) };
         }
 
