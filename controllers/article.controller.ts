@@ -10,6 +10,10 @@ type QueryType = {
     category?: { $in: string[] };
 };
 
+type CategoryQueryType = {
+    category?: { $in: string[] };
+}
+
 //* Creates a new article
 exports.createArticle = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -34,8 +38,23 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
 //* Get all articles
 exports.getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const articles = await Article.find().sort({ createdAt: -1 }).populate('author', '-password -email -savedArticles');
-        res.status(200).json(articles)
+        let categories = req.query.categories;
+        if (typeof categories === 'string' && categories) {
+            categories = categories.split(',');
+        }
+        const query: CategoryQueryType = {};
+        // If categories are provided and is an array, add them to the query
+        if (Array.isArray(categories) && categories.length > 0) {
+            console.log('Adding categories');
+            query.category = { $in: categories.map(category => String(category)) };
+        }
+
+        // Filter articles based on the query
+        const posts = await Article.find(query)
+            .sort({ createdAt: -1 })
+            .populate('author', 'name profilePicture');
+
+        res.status(200).json({ success: true, posts });
     } catch (error) {
         console.log('Get All Articles Controller: ', (error as Error).message);
         next(error);

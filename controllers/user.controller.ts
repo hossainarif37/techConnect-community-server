@@ -35,3 +35,15 @@ exports.getUserProfile = async (req: Request, res: Response, next: NextFunction)
         next(error);
     }
 }
+
+
+exports.getAllUsers = async (req: Request, res: Response) => {
+    try {
+        // Use the find method with a projection to return only the name and profilePicture fields
+        const users = await User.find({}, { name: 1, profilePicture: 1, _id: 0 });
+        res.status(200).json({ success: true, users });
+    } catch (error) {
+        console.error('Error fetching all users:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+}
