@@ -46,15 +46,11 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
 //* Get Articles by User ID
 exports.getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Assuming categories is an array of categories from the query parameters
         let categories = req.query.categories;
-
+        let query: QueryType = { author: req.params.userId };
         if (typeof categories === 'string' && categories) {
             categories = categories.split(',');
         }
-
-        /// Initialize the query object with the defined type
-        let query: QueryType = { author: req.params.userId };
 
         // If categories are provided and is an array, add them to the query
         if (Array.isArray(categories) && categories.length > 0) {
@@ -68,9 +64,7 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
             .sort({ createdAt: -1 })
             .populate('author', 'name profilePicture');
 
-        if (!posts.length) {
-            return res.status(404).json({ success: false, message: 'Posts not found' });
-        }
+
         res.status(200).json({ success: true, posts });
     } catch (error) {
         console.log('Get Articles By User Controller: ', (error as Error).message);
