@@ -45,7 +45,6 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
         const query: CategoryQueryType = {};
         // If categories are provided and is an array, add them to the query
         if (Array.isArray(categories) && categories.length > 0) {
-            console.log('Adding categories');
             query.category = { $in: categories.map(category => String(category)) };
         }
 
@@ -73,7 +72,6 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
 
         // If categories are provided and is an array, add them to the query
         if (Array.isArray(categories) && categories.length > 0) {
-            console.log('Adding categories');
             query.category = { $in: categories.map(category => String(category)) };
         }
 
