@@ -35,6 +35,8 @@ router
     */
     .get('/profile/:userId', userController.getUserProfile)
 
+    .get('/', userController.getAllUsers);
+
 
 
 module.exports = router;
