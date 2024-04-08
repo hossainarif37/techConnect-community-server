@@ -18,13 +18,8 @@ exports.getCurrentUser = async (req: Request, res: Response, next: NextFunction)
 //* Get user articles by their ID
 exports.getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let populateFields = 'articles followers following';
-        if ((req.user as IUser).id === req.params.userId) {
-            // If the user is viewing their own profile, populate the 'savedArticles' field
-            populateFields += ' savedArticles';
-        }
 
-        const user = await User.findById(req.params.userId).populate(populateFields);
+        const user = await User.findById(req.params.userId, { name: 1, profilePicture: 1, followers: 1, following: 1, _id: 0 });
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
@@ -39,8 +34,12 @@ exports.getUserProfile = async (req: Request, res: Response, next: NextFunction)
 
 exports.getAllUsers = async (req: Request, res: Response) => {
     try {
-        // Use the find method with a projection to return only the name and profilePicture fields
-        const users = await User.find({}, { name: 1, profilePicture: 1, _id: 0 });
+        const name = req.query.name;
+        let query: any = {};
+        if (name) {
+            query.name = { $regex: name, $options: 'i' };
+        }
+        const users = await User.find(query, { name: 1, profilePicture: 1, _id: 1 });
         res.status(200).json({ success: true, users });
     } catch (error) {
         console.error('Error fetching all users:', error);
