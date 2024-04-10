@@ -78,7 +78,8 @@ exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
                 res.status(200).send({
                     success: true,
                     message: "Login in successfully",
-                    token: `Bearer ${token}`
+                    token: `Bearer ${token}`,
+                    user
                 })
             } else {
                 res.status(401).send({ success: false, message: 'Wrong password' })

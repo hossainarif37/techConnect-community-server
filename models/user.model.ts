@@ -11,6 +11,7 @@ export interface IUser extends Document {
     following?: mongoose.Types.ObjectId[];
     articles?: mongoose.Types.ObjectId[];
     savedArticles?: mongoose.Types.ObjectId[];
+    createdAt: Date;
 }
 
 const userSchema = new Schema({
@@ -55,6 +56,10 @@ const userSchema = new Schema({
             ref: 'Article'
         }
     ],
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 
 })
 
