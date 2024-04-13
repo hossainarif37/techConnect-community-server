@@ -81,7 +81,7 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
         const posts = await Article.find(query)
             .sort({ createdAt: -1 })
             .populate('author', 'name profilePicture')
-            .populate('comments')
+            .populate('comments', '-__v')
 
 
         res.status(200).json({ success: true, posts });
