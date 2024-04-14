@@ -41,7 +41,7 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
         // Calculate the remaining comments
         const remainingComments = totalComments - comments.length;
 
-        res.status(200).json({ success: true, comments, remainingComments });
+        res.status(200).json({ success: true, comments, remainingComments, totalComments });
     } catch (error) {
         console.log('Get Comments By ArticleId Controller: ', (error as Error).message);
         next(error);
