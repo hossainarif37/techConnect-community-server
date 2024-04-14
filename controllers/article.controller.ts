@@ -3,6 +3,7 @@ import { IUser } from "../models/user.model";
 
 const Article = require('../models/article.model')
 import User from '../models/user.model';
+const Comment = require('../models/comment.model');
 
 // Define a type for the query object
 type QueryType = {
@@ -55,14 +56,6 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
                 path: 'author',
                 select: 'name profilePicture'
             })
-            .populate({
-                path: 'comments',
-                select: '-__v',
-                options: {
-                    sort: { createdAt: -1 },
-                    limit: 1
-                }
-            })
 
         res.status(200).json({ success: true, posts });
     } catch (error) {
@@ -94,15 +87,6 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
                 path: 'author',
                 select: 'name profilePicture'
             })
-            .populate({
-                path: 'comments',
-                select: '-__v',
-                options: {
-                    sort: { createdAt: -1 },
-                    limit: 1
-                }
-            })
-
 
         res.status(200).json({ success: true, posts });
     } catch (error) {
