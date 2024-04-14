@@ -52,7 +52,7 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
         const posts = await Article.find(query)
             .sort({ createdAt: -1 })
             .populate('author', 'name profilePicture')
-            .populate('comments')
+            .populate('comments', '-__v')
 
         res.status(200).json({ success: true, posts });
     } catch (error) {
