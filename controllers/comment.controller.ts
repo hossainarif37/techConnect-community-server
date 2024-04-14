@@ -25,8 +25,15 @@ exports.createComment = async (req: Request, res: Response, next: NextFunction) 
 exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const articleId = req.params.articleId;
-        const comments = await Comment.find({ article: articleId }, '-__v').populate('author', '_id name profilePicture');
-        res.status(200).json(comments);
+        const { limit = 1 } = req.query;
+        const comments = await Comment.find({ article: articleId }, '-__v')
+            .sort({ createdAt: -1 })
+            .limit(parseInt(limit as string))
+            .populate('author', '_id name profilePicture');
+
+        const totalComments = await Comment.countDocuments({ article: articleId });
+
+        res.status(200).json({ success: true, comments, totalComments });
     } catch (error) {
         console.log('Get Comments By ArctileId Controller: ', (error as Error).message);
         next(error);
