@@ -51,8 +51,18 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
         // Filter articles based on the query
         const posts = await Article.find(query)
             .sort({ createdAt: -1 })
-            .populate('author', 'name profilePicture')
-            .populate('comments', '-__v')
+            .populate({
+                path: 'author',
+                select: 'name profilePicture'
+            })
+            .populate({
+                path: 'comments',
+                select: '-__v',
+                options: {
+                    sort: { createdAt: -1 },
+                    limit: 1
+                }
+            })
 
         res.status(200).json({ success: true, posts });
     } catch (error) {
@@ -80,8 +90,18 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
         // Filter articles based on the query
         const posts = await Article.find(query)
             .sort({ createdAt: -1 })
-            .populate('author', 'name profilePicture')
-            .populate('comments', '-__v')
+            .populate({
+                path: 'author',
+                select: 'name profilePicture'
+            })
+            .populate({
+                path: 'comments',
+                select: '-__v',
+                options: {
+                    sort: { createdAt: -1 },
+                    limit: 1
+                }
+            })
 
 
         res.status(200).json({ success: true, posts });
