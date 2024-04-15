@@ -26,7 +26,6 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
     try {
         const articleId = req.params.articleId;
         const { limit = 1, skip = 0 } = req.query;
-        console.log(req.query);
 
         // Fetch the total number of comments for the article
         const totalComments = await Comment.countDocuments({ article: articleId });
