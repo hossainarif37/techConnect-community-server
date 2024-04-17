@@ -27,13 +27,14 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
         const articleId = req.params.articleId;
         const { limit = 1, skip = 0 } = req.query;
 
+
         // Fetch the total number of comments for the article
         const totalComments = await Comment.countDocuments({ article: articleId });
 
         // Fetch the comments with limit and skip
         const comments = await Comment.find({ article: articleId }, '-__v')
             .sort({ createdAt: -1 })
-            .limit(parseInt(limit as string))
+            .limit(Number(skip) > 0 ? Number.MAX_SAFE_INTEGER : parseInt(limit as string))
             .skip(skip)
             .populate('author', '_id name profilePicture');
 
