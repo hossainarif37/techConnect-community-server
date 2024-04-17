@@ -25,17 +25,24 @@ exports.createComment = async (req: Request, res: Response, next: NextFunction) 
 exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const articleId = req.params.articleId;
-        const { limit = 1 } = req.query;
+        const { limit = 1, skip = 0 } = req.query;
+
+        // Fetch the total number of comments for the article
+        const totalComments = await Comment.countDocuments({ article: articleId });
+
+        // Fetch the comments with limit and skip
         const comments = await Comment.find({ article: articleId }, '-__v')
             .sort({ createdAt: -1 })
             .limit(parseInt(limit as string))
+            .skip(skip)
             .populate('author', '_id name profilePicture');
 
-        const totalComments = await Comment.countDocuments({ article: articleId });
+        // Calculate the remaining comments
+        const remainingComments = totalComments - comments.length;
 
-        res.status(200).json({ success: true, comments, totalComments });
+        res.status(200).json({ success: true, comments, remainingComments, totalComments });
     } catch (error) {
-        console.log('Get Comments By ArctileId Controller: ', (error as Error).message);
+        console.log('Get Comments By ArticleId Controller: ', (error as Error).message);
         next(error);
     }
 }
