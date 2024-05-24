@@ -20,7 +20,7 @@ router
     */
     .get('/current-user', checkAuth, userController.getCurrentUser)
 
-    //* Get articles by user ID
+    //* Get user by user ID
     /**
     * @route GET /api/user/profile/:userId
     * @description Get a user's profile by ID.
