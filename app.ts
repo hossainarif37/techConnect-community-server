@@ -16,7 +16,9 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: process.env.CLIENT_URL ? [process.env.CLIENT_URL, "http://localhost:3000"] : ["http://localhost:3000"]
+    origin: process.env.CLIENT_URL ? [process.env.CLIENT_URL, "http://localhost:3000"] : ["http://localhost:3000"],
+    methods: "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+    credentials: true
 }));
 app.use(express.urlencoded({ extended: true }));
 
