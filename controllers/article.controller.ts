@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { IUser } from "../models/user.model";
 
-const Article = require('../models/article.model')
 import User from '../models/user.model';
-const Comment = require('../models/comment.model');
-
+import Article from "../models/article.model";
 // Define a type for the query object
 type QueryType = {
     author: string;

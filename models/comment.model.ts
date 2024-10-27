@@ -31,4 +31,5 @@ const commentSchema = new Schema({
     }
 });
 
-module.exports = model('Comment', commentSchema);
+const Comment = model<IComment>('Comment', commentSchema);
+export default Comment;

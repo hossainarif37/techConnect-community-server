@@ -1,12 +1,13 @@
-import mongoose, { Document, Schema, model } from "mongoose";
+import mongoose, { Document, Schema, Types, model } from "mongoose";
 
 
 export interface IArticle extends Document {
     title: string;
     content: string;
     category: string;
-    author: Schema.Types.ObjectId;
-    comments: Schema.Types.ObjectId[];
+    author: Types.ObjectId;
+    comments: Types.ObjectId[];
+    likes: Types.ObjectId[];
     createdAt: Date;
 }
 
@@ -24,14 +25,18 @@ const articleSchema = new Schema({
         required: [true, 'Category is required']
     },
     author: {
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'User',
         required: [true, 'Author is required'],
         cast: 'Provide a valid author ID',
     },
     comments: [{
-        type: Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'Comment',
+    }],
+    likes: [{
+        type: Types.ObjectId,
+        ref: 'User',
     }],
     createdAt: {
         type: Date,
@@ -40,4 +45,5 @@ const articleSchema = new Schema({
 });
 
 
-module.exports = model('Article', articleSchema);
+const Article = model<IArticle>('Article', articleSchema);
+export default Article;

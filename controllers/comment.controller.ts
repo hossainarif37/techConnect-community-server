@@ -1,7 +1,7 @@
-import { NextFunction, Request, response, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
-const Comment = require('../models/comment.model');
-const Article = require('../models/article.model');
+import Comment from "../models/comment.model";
+import Article from "../models/article.model";
 
 //* Creates a new comment for an article
 exports.createComment = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,7 +35,7 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
         const comments = await Comment.find({ article: articleId }, '-__v')
             .sort({ createdAt: -1 })
             .limit(Number(skip) > 0 ? Number.MAX_SAFE_INTEGER : parseInt(limit as string))
-            .skip(skip)
+            .skip(parseInt(skip as string))
             .populate('author', '_id name profilePicture');
 
         // Calculate the remaining comments

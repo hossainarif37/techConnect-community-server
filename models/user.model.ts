@@ -1,16 +1,16 @@
-import mongoose, { Document, model, mongo, Schema } from "mongoose";
+import mongoose, { Document, model, mongo, Schema, Types } from "mongoose";
 
 
 export interface IUser extends Document {
-    _id: mongoose.Types.ObjectId;
+    _id: Types.ObjectId;
     name: string;
     email: string;
     password: string;
     profilePicture: string;
-    followers?: mongoose.Types.ObjectId[];
-    following?: mongoose.Types.ObjectId[];
-    articles?: mongoose.Types.ObjectId[];
-    savedArticles?: mongoose.Types.ObjectId[];
+    followers?: Types.ObjectId[];
+    following?: Types.ObjectId[];
+    articles?: Types.ObjectId[];
+    savedArticles?: Types.ObjectId[];
     createdAt: Date;
 }
 
@@ -34,25 +34,25 @@ const userSchema = new Schema({
     },
     followers: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'User'
         }
     ],
     following: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'User'
         }
     ],
     articles: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'Article'
         }
     ],
     savedArticles: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'Article'
         }
     ],
@@ -63,4 +63,5 @@ const userSchema = new Schema({
 
 })
 
-export default model<IUser>('User', userSchema);
+const User = model<IUser>('User', userSchema);
+export default User;

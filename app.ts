@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const articleRoutes = require('./routes/article.routes');
 const commentRoutes = require('./routes/comment.routes');
+const likeRoutes = require('./routes/like.routes');
 
 require('./config/database')
 require('./config/passport')
@@ -37,6 +38,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/posts', articleRoutes);
 app.use('/api/v1/comments', commentRoutes);
+app.use('/api/v1/likes', likeRoutes);
 
 
 //* route not  found
