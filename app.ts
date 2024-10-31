@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-//* Passport and Session Intialize
+//* Passport and Session Initialize
 app.use(passport.initialize());
 
 //* home route

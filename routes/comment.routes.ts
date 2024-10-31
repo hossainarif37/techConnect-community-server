@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const commentController = require('../controllers/comment.controller');
+const { checkAuth } = require('../middleware/authorization');
 
 router
     //* Creates a new comment for an article
@@ -35,6 +36,6 @@ router
 
     .get('/:articleId', commentController.getCommentsByArticleId)
 
-
+    .delete('/:commentId/:articleId', checkAuth, commentController.deleteComment);
 
 module.exports = router;
