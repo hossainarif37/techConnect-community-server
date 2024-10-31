@@ -93,3 +93,41 @@ exports.deleteComment = async (req: Request, res: Response, next: NextFunction) 
         next(error);
     }
 };
+
+// Edit Comment Functionality
+exports.editComment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { commentId } = req.params;
+        const { content } = req.body;
+        const userId = (req.user as { _id: string })._id;
+
+        if (!content) {
+            return res.status(400).json({ success: false, message: 'Content is required' });
+        }
+
+        // Find the comment to confirm ownership
+        const comment = await Comment.findById(commentId);
+
+        // Check if the comment exists
+        if (!comment) {
+            return res.status(404).json({ success: false, message: 'Comment not found' });
+        }
+
+        // Check if the user is the owner of the comment
+        if (comment.author.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, message: 'You are not authorized to edit this comment' });
+        }
+
+        // Update the comment content
+        if (content) comment.content = content;
+
+        // Save the updated comment
+        await comment.save();
+
+        // Return success response
+        return res.status(200).json({ success: true, message: 'Comment updated successfully', comment });
+    } catch (error) {
+        console.error('Error editing comment:', error);
+        next(error);
+    }
+};

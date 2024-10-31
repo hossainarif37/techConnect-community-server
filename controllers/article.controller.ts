@@ -134,7 +134,7 @@ exports.editPost = async (req: Request, res: Response, next: NextFunction) => {
         const { articleId } = req.params;
         const { title, content, category } = req.body;
         
-        const userId = (req.user as { _id: string })._id;
+        const userId = (req.user as IUser)._id;
 
         // Find the article to confirm ownership
         const article = await Article.findById(articleId);

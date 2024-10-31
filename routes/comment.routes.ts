@@ -36,6 +36,8 @@ router
 
     .get('/:articleId', commentController.getCommentsByArticleId)
 
-    .delete('/:commentId/:articleId', checkAuth, commentController.deleteComment);
+    .delete('/:commentId/:articleId', checkAuth, commentController.deleteComment)
+
+    .put('/:commentId', checkAuth, commentController.editComment)
 
 module.exports = router;
