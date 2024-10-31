@@ -41,12 +41,8 @@ router
  */
     .get('/', checkAuth, articleController.getAllArticles)
 
-
-
     .get('/:userId', checkAuth, articleController.getArticlesByUser)
 
-
-
-
+    .delete('/:articleId', checkAuth, articleController.deleteArticleWithComments)
 
 module.exports = router;

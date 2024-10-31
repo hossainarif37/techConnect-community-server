@@ -3,6 +3,7 @@ import { IUser } from "../models/user.model";
 
 import User from '../models/user.model';
 import Article from "../models/article.model";
+import Comment from "../models/comment.model";
 // Define a type for the query object
 type QueryType = {
     author: string;
@@ -13,7 +14,7 @@ type CategoryQueryType = {
     category?: { $in: string[] };
 }
 
-//* Creates a new article
+// Creates a new article
 exports.createArticle = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const article = new Article({ ...req.body, author: (req.user as IUser)._id });
@@ -21,7 +22,7 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
         // * Get the user's ObjectId
         const authorId = (req.user as IUser)._id;
 
-        //* Update the user's document to include the new article's ObjectId
+        // Update the user's document to include the new article's ObjectId
         await User.findByIdAndUpdate(authorId, { $push: { articles: article._id } });
 
         res.status(201).json({
@@ -34,7 +35,7 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-//* Get all articles
+// Get all articles
 exports.getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
@@ -63,7 +64,7 @@ exports.getAllArticles = async (req: Request, res: Response, next: NextFunction)
 }
 
 
-//* Get Articles by User ID
+// Get Articles by User ID
 exports.getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
@@ -89,6 +90,40 @@ exports.getArticlesByUser = async (req: Request, res: Response, next: NextFuncti
         res.status(200).json({ success: true, posts });
     } catch (error) {
         console.log('Get Articles By User Controller: ', (error as Error).message);
+        next(error);
+    }
+};
+
+// Delete an article with its comments
+exports.deleteArticleWithComments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { articleId } = req.params;
+        const userId = (req.user as IUser)._id;
+
+        // Find the article to confirm the author
+        const article = await Article.findById(articleId);
+
+        // Check if the article exists
+        if (!article) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+
+        // Check if the requesting user is the author of the article
+        if (article.author.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "You are not authorized to delete this article" });
+        }
+
+        // Delete all comments associated with the article
+        await Comment.deleteMany({ _id: { $in: article.comments } });
+
+        // Delete the article itself
+        await Article.findByIdAndDelete(articleId);
+
+        // Return success response
+        return res.status(200).json({success: true, message: "Article and its comments deleted successfully" });
+
+    } catch (error) {
+        console.error("Error deleting article:", error);
         next(error);
     }
 };
