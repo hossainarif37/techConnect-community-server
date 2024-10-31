@@ -45,4 +45,6 @@ router
 
     .delete('/:articleId', checkAuth, articleController.deleteArticleWithComments)
 
+    .put('/:articleId', checkAuth, articleController.editPost)
+
 module.exports = router;

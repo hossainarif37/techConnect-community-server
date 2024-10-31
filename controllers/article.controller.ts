@@ -127,3 +127,40 @@ exports.deleteArticleWithComments = async (req: Request, res: Response, next: Ne
         next(error);
     }
 };
+
+// Edit an article
+exports.editPost = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { articleId } = req.params;
+        const { title, content, category } = req.body;
+        
+        const userId = (req.user as { _id: string })._id;
+
+        // Find the article to confirm ownership
+        const article = await Article.findById(articleId);
+
+        // Check if the article exists
+        if (!article) {
+            return res.status(404).json({ success: false, message: 'Article not found' });
+        }
+
+        // Check if the user is the owner of the article
+        if (article.author.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, message: 'You are not authorized to edit this article' });
+        }
+
+        // Update the article fields
+        if (title) article.title = title;
+        if (content) article.content = content;
+        if (category) article.category = category;
+
+        // Save the updated article
+        await article.save();
+
+        // Return success response
+        return res.status(200).json({ success: true, message: 'Article updated successfully', article });
+    } catch (error) {
+        console.error('Error editing article:', error);
+        next(error);
+    }
+};
