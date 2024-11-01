@@ -35,33 +35,86 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
+let requestOfArticles: number = 0;
 // Get all articles
-exports.getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
+        requestOfArticles++;
+
         if (typeof categories === 'string' && categories) {
             categories = categories.split(',');
         }
+
         const query: CategoryQueryType = {};
-        // If categories are provided and is an array, add them to the query
+
         if (Array.isArray(categories) && categories.length > 0) {
             query.category = { $in: categories.map(category => String(category)) };
         }
 
-        // Filter articles based on the query
-        const posts = await Article.find(query)
-            .sort({ createdAt: -1 })
-            .populate({
-                path: 'author',
-                select: 'name profilePicture'
-            })
+        // Aggregation pipeline to fetch articles with total comments, latest comment, and specific author details
+        const posts = await Article.aggregate([
+            {
+                $match: query,
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    let: { authorId: "$author" }, // Use the article's `author` field as a variable
+                    pipeline: [
+                        { $match: { $expr: { $eq: ["$_id", "$$authorId"] } } }, // Match only the specific author
+                        { $project: { _id: 1, name: 1, profilePicture: 1 } } // Project only required fields
+                    ],
+                    as: 'author'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'comments',
+                    localField: 'comments',
+                    foreignField: '_id',
+                    as: 'comments'
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    content: 1,
+                    category: 1,
+                    author: { $arrayElemAt: ["$author", 0] }, // Get only the required author fields
+                    createdAt: 1,
+                    totalComments: { $size: "$comments" },
+                    latestComment: { $arrayElemAt: ["$comments", 0] }
+                }
+            },
+            {
+                $sort: { createdAt: -1 }
+            }
+        ]);
 
-        res.status(200).json({ success: true, posts });
+        // Format the posts to include the latest comment author details
+        const formattedPosts = await Promise.all(posts.map(async (post) => {
+            const latestCommentAuthor = post.latestComment ? await User.findById(post.latestComment.author) : null;
+
+            return {
+                ...post,
+                latestComment: {
+                    ...post.latestComment,
+                    author: latestCommentAuthor
+                        ? { name: latestCommentAuthor.name, profilePicture: latestCommentAuthor.profilePicture }
+                        : null,
+                },
+                remainingComments: Math.max(post.totalComments - 1, 0)
+            };
+        }));
+
+        res.status(200).json({ success: true, posts: formattedPosts });
     } catch (error) {
-        console.log('Get All Articles Controller: ', (error as Error).message);
         next(error);
     }
-}
+};
+
+
 
 
 // Get Articles by User ID

@@ -23,11 +23,11 @@ exports.createComment = async (req: Request, res: Response, next: NextFunction) 
 }
 
 //* Get all comments for a specific article
+let request: number = 0;
 exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const articleId = req.params.articleId;
         const { limit = 1, skip = 0 } = req.query;
-
 
         // Fetch the total number of comments for the article
         const totalComments = await Comment.countDocuments({ article: articleId });
@@ -35,19 +35,46 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
         // Fetch the comments with limit and skip
         const comments = await Comment.find({ article: articleId }, '-__v')
             .sort({ createdAt: -1 })
-            .limit(Number(skip) > 0 ? Number.MAX_SAFE_INTEGER : parseInt(limit as string))
-            .skip(parseInt(skip as string))
+            .limit(Number(limit))
+            .skip(Number(skip))
             .populate('author', '_id name profilePicture');
 
         // Calculate the remaining comments
-        const remainingComments = totalComments - comments.length;
+        const remainingComments = Math.max(totalComments - Number(skip) - comments.length, 0);
 
         res.status(200).json({ success: true, comments, remainingComments, totalComments });
     } catch (error) {
         console.log('Get Comments By ArticleId Controller: ', (error as Error).message);
         next(error);
     }
-}
+};
+
+let requestOfComments: number = 0;
+exports.getRemainingCommentsByArticleId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const articleId = req.params.articleId;
+        const { skip = 1, limit = 10 } = req.query;
+
+        requestOfComments++;
+
+        console.log('request from get remaining comments controller: ', requestOfComments);
+
+        const comments = await Comment.find({ article: articleId })
+            .sort({ createdAt: -1 })
+            .skip(Number(skip))
+            .limit(Number(limit))
+            .populate('author', '_id name profilePicture');
+
+        const totalComments = await Comment.countDocuments({ article: articleId });
+        const remainingComments = Math.max(totalComments - (Number(skip) + comments.length), 0);
+
+        res.status(200).json({ success: true, comments, remainingComments });
+    } catch (error) {
+        console.error('Get Remaining Comments Error:', (error as Error).message);
+        next(error);
+    }
+};
+
 
 // Delete Comment Functionality
 exports.deleteComment = async (req: Request, res: Response, next: NextFunction) => {

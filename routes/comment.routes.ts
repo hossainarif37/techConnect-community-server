@@ -34,7 +34,7 @@ router
      * @throws {500} If there's an internal server error.
      */
 
-    .get('/:articleId', commentController.getCommentsByArticleId)
+    .get('/:articleId', commentController.getRemainingCommentsByArticleId)
 
     .delete('/:commentId/:articleId', checkAuth, commentController.deleteComment)
 
