@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const commentController = require('../controllers/comment.controller');
+const { checkAuth } = require('../middleware/authorization');
 
 router
     //* Creates a new comment for an article
@@ -33,8 +34,10 @@ router
      * @throws {500} If there's an internal server error.
      */
 
-    .get('/:articleId', commentController.getCommentsByArticleId)
+    .get('/:articleId', commentController.getRemainingCommentsByArticleId)
 
+    .delete('/:commentId/:articleId', checkAuth, commentController.deleteComment)
 
+    .put('/:commentId', checkAuth, commentController.editComment)
 
 module.exports = router;
