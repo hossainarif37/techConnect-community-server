@@ -49,15 +49,10 @@ exports.getCommentsByArticleId = async (req: Request, res: Response, next: NextF
     }
 };
 
-let requestOfComments: number = 0;
 exports.getRemainingCommentsByArticleId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const articleId = req.params.articleId;
         const { skip = 1, limit = 10 } = req.query;
-
-        requestOfComments++;
-
-        console.log('request from get remaining comments controller: ', requestOfComments);
 
         const comments = await Comment.find({ article: articleId })
             .sort({ createdAt: -1 })

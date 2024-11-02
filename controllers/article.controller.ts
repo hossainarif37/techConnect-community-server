@@ -35,12 +35,10 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-let requestOfArticles: number = 0;
 // Get all articles
 export const getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
-        requestOfArticles++;
 
         if (typeof categories === 'string' && categories) {
             categories = categories.split(',');
@@ -101,7 +99,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                 latestComment: {
                     ...post.latestComment,
                     author: latestCommentAuthor
-                        ? { name: latestCommentAuthor.name, profilePicture: latestCommentAuthor.profilePicture }
+                        ? { _id: latestCommentAuthor._id, name: latestCommentAuthor.name, profilePicture: latestCommentAuthor.profilePicture }
                         : null,
                 },
                 remainingComments: Math.max(post.totalComments - 1, 0)
@@ -173,7 +171,7 @@ exports.deleteArticleWithComments = async (req: Request, res: Response, next: Ne
         await Article.findByIdAndDelete(articleId);
 
         // Return success response
-        return res.status(200).json({success: true, message: "Article and its comments deleted successfully" });
+        return res.status(200).json({ success: true, message: "Article and its comments deleted successfully" });
 
     } catch (error) {
         console.error("Error deleting article:", error);
@@ -186,7 +184,7 @@ exports.editPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { articleId } = req.params;
         const { title, content, category } = req.body;
-        
+
         const userId = (req.user as IUser)._id;
 
         // Find the article to confirm ownership
