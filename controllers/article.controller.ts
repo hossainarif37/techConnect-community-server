@@ -35,7 +35,7 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-// Get all articles
+
 export const getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
@@ -50,7 +50,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             query.category = { $in: categories.map(category => String(category)) };
         }
 
-        // Aggregation pipeline to fetch articles with total comments, latest comment, and specific author details
+        // Aggregation pipeline to fetch articles with total comments and latest comment
         const posts = await Article.aggregate([
             {
                 $match: query,
@@ -69,9 +69,34 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             {
                 $lookup: {
                     from: 'comments',
-                    localField: 'comments',
-                    foreignField: '_id',
-                    as: 'comments'
+                    let: { commentIds: "$comments" },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$_id", "$$commentIds"] } } },
+                        { $sort: { createdAt: -1 } }, // Sort comments by creation date descending
+                        { $limit: 1 }, // Limit to the latest comment
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'author',
+                                foreignField: '_id',
+                                as: 'authorDetails'
+                            }
+                        },
+                        { $unwind: "$authorDetails" },
+                        {
+                            $project: {
+                                _id: 1,
+                                content: 1,
+                                createdAt: 1,
+                                author: {
+                                    _id: "$authorDetails._id",
+                                    name: "$authorDetails.name",
+                                    profilePicture: "$authorDetails.profilePicture"
+                                }
+                            }
+                        }
+                    ],
+                    as: 'latestComment'
                 }
             },
             {
@@ -82,7 +107,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                     author: { $arrayElemAt: ["$author", 0] }, // Get only the required author fields
                     createdAt: 1,
                     totalComments: { $size: "$comments" },
-                    latestComment: { $arrayElemAt: ["$comments", 0] }
+                    latestComment: { $arrayElemAt: ["$latestComment", 0] } // Get the latest comment
                 }
             },
             {
@@ -90,27 +115,20 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             }
         ]);
 
-        // Format the posts to include the latest comment author details
-        const formattedPosts = await Promise.all(posts.map(async (post) => {
-            const latestCommentAuthor = post.latestComment ? await User.findById(post.latestComment.author) : null;
-
-            return {
-                ...post,
-                latestComment: {
-                    ...post.latestComment,
-                    author: latestCommentAuthor
-                        ? { _id: latestCommentAuthor._id, name: latestCommentAuthor.name, profilePicture: latestCommentAuthor.profilePicture }
-                        : null,
-                },
-                remainingComments: Math.max(post.totalComments - 1, 0)
-            };
+        // Format the posts to include the latest comment and remaining comments count
+        const formattedPosts = posts.map(post => ({
+            ...post,
+            latestComment: post.latestComment, // Ensure latestComment is included
+            remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
         }));
 
         res.status(200).json({ success: true, posts: formattedPosts });
     } catch (error) {
+        console.error('Get All Articles Error:', (error as Error).message);
         next(error);
     }
 };
+
 
 
 
