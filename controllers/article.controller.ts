@@ -89,6 +89,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                                 _id: 1,
                                 content: 1,
                                 createdAt: 1,
+                                article: 1,
                                 author: {
                                     _id: "$authorDetails._id",
                                     name: "$authorDetails.name",
@@ -186,6 +187,7 @@ export const getArticlesByUser = async (req: Request, res: Response, next: NextF
                             $project: {
                                 _id: 1,
                                 content: 1,
+                                article: 1,
                                 createdAt: 1,
                                 author: {
                                     _id: "$authorDetails._id",
