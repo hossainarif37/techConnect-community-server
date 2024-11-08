@@ -4,6 +4,7 @@ import { IUser } from "../models/user.model";
 import User from '../models/user.model';
 import Article from "../models/article.model";
 import Comment from "../models/comment.model";
+import mongoose, { Types } from "mongoose";
 // Define a type for the query object
 type QueryType = {
     author: string;
@@ -35,12 +36,10 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-let requestOfArticles: number = 0;
-// Get all articles
+
 export const getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
-        requestOfArticles++;
 
         if (typeof categories === 'string' && categories) {
             categories = categories.split(',');
@@ -52,7 +51,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             query.category = { $in: categories.map(category => String(category)) };
         }
 
-        // Aggregation pipeline to fetch articles with total comments, latest comment, and specific author details
+        // Aggregation pipeline to fetch articles with total comments and latest comment
         const posts = await Article.aggregate([
             {
                 $match: query,
@@ -71,9 +70,35 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             {
                 $lookup: {
                     from: 'comments',
-                    localField: 'comments',
-                    foreignField: '_id',
-                    as: 'comments'
+                    let: { commentIds: "$comments" },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$_id", "$$commentIds"] } } },
+                        { $sort: { createdAt: -1 } }, // Sort comments by creation date descending
+                        { $limit: 1 }, // Limit to the latest comment
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'author',
+                                foreignField: '_id',
+                                as: 'authorDetails'
+                            }
+                        },
+                        { $unwind: "$authorDetails" },
+                        {
+                            $project: {
+                                _id: 1,
+                                content: 1,
+                                createdAt: 1,
+                                article: 1,
+                                author: {
+                                    _id: "$authorDetails._id",
+                                    name: "$authorDetails.name",
+                                    profilePicture: "$authorDetails.profilePicture"
+                                }
+                            }
+                        }
+                    ],
+                    as: 'latestComment'
                 }
             },
             {
@@ -84,7 +109,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                     author: { $arrayElemAt: ["$author", 0] }, // Get only the required author fields
                     createdAt: 1,
                     totalComments: { $size: "$comments" },
-                    latestComment: { $arrayElemAt: ["$comments", 0] }
+                    latestComment: { $arrayElemAt: ["$latestComment", 0] } // Get the latest comment
                 }
             },
             {
@@ -92,57 +117,116 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             }
         ]);
 
-        // Format the posts to include the latest comment author details
-        const formattedPosts = await Promise.all(posts.map(async (post) => {
-            const latestCommentAuthor = post.latestComment ? await User.findById(post.latestComment.author) : null;
-
-            return {
-                ...post,
-                latestComment: {
-                    ...post.latestComment,
-                    author: latestCommentAuthor
-                        ? { name: latestCommentAuthor.name, profilePicture: latestCommentAuthor.profilePicture }
-                        : null,
-                },
-                remainingComments: Math.max(post.totalComments - 1, 0)
-            };
+        // Format the posts to include the latest comment and remaining comments count
+        const formattedPosts = posts.map(post => ({
+            ...post,
+            remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
         }));
 
         res.status(200).json({ success: true, posts: formattedPosts });
     } catch (error) {
+        console.error('Get All Articles Error:', (error as Error).message);
         next(error);
     }
 };
 
 
-
-
 // Get Articles by User ID
-exports.getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
+export const getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
-        let query: QueryType = { author: req.params.userId };
-        if (typeof categories === 'string' && categories) {
-            categories = categories.split(',');
+        const userId = req.params.userId;
+
+        // Validate and convert userId to ObjectId
+        if (!Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID' });
         }
 
-        // If categories are provided and is an array, add them to the query
+        // Initialize query with author
+        let query: any = { author: new Types.ObjectId(userId) };
+
+        // Handle categories filtering
+        if (typeof categories === 'string' && categories.trim() !== '') {
+            categories = categories.split(',').map((cat: string) => cat.trim());
+        }
+
         if (Array.isArray(categories) && categories.length > 0) {
-            query.category = { $in: categories.map(category => String(category)) };
+            query.category = { $in: categories };
         }
 
+        // Aggregation pipeline to fetch articles with total comments and latest comment
+        const posts = await Article.aggregate([
+            { $match: query },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'author',
+                    foreignField: '_id',
+                    as: 'author'
+                }
+            },
+            { $unwind: '$author' },
+            {
+                $lookup: {
+                    from: 'comments',
+                    let: { commentIds: "$comments" },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$_id", "$$commentIds"] } } },
+                        { $sort: { createdAt: -1 } }, // Sort comments by creation date descending
+                        { $limit: 1 }, // Limit to the latest comment
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'author',
+                                foreignField: '_id',
+                                as: 'authorDetails'
+                            }
+                        },
+                        { $unwind: "$authorDetails" },
+                        {
+                            $project: {
+                                _id: 1,
+                                content: 1,
+                                article: 1,
+                                createdAt: 1,
+                                author: {
+                                    _id: "$authorDetails._id",
+                                    name: "$authorDetails.name",
+                                    profilePicture: "$authorDetails.profilePicture"
+                                }
+                            }
+                        }
+                    ],
+                    as: 'latestComment'
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    content: 1,
+                    category: 1,
+                    author: {
+                        _id: "$author._id",
+                        name: "$author.name",
+                        profilePicture: "$author.profilePicture"
+                    },
+                    createdAt: 1,
+                    totalComments: { $size: "$comments" },
+                    latestComment: { $arrayElemAt: ["$latestComment", 0] }
+                }
+            },
+            { $sort: { createdAt: -1 } }
+        ]);
 
-        // Filter articles based on the query
-        const posts = await Article.find(query)
-            .sort({ createdAt: -1 })
-            .populate({
-                path: 'author',
-                select: 'name profilePicture'
-            })
+        // Format the posts to include the latest comment and remaining comments count
+        const formattedPosts = posts.map(post => ({
+            ...post,
+            remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
+        }));
 
-        res.status(200).json({ success: true, posts });
+        res.status(200).json({ success: true, posts: formattedPosts });
     } catch (error) {
-        console.log('Get Articles By User Controller: ', (error as Error).message);
+        console.error('Get Articles By User Error:', (error as Error).message);
         next(error);
     }
 };
@@ -173,7 +257,7 @@ exports.deleteArticleWithComments = async (req: Request, res: Response, next: Ne
         await Article.findByIdAndDelete(articleId);
 
         // Return success response
-        return res.status(200).json({success: true, message: "Article and its comments deleted successfully" });
+        return res.status(200).json({ success: true, message: "Article and its comments deleted successfully" });
 
     } catch (error) {
         console.error("Error deleting article:", error);
@@ -186,7 +270,7 @@ exports.editPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { articleId } = req.params;
         const { title, content, category } = req.body;
-        
+
         const userId = (req.user as IUser)._id;
 
         // Find the article to confirm ownership
