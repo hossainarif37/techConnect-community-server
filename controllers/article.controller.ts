@@ -40,6 +40,9 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
 export const getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
+        let page = parseInt(req.query.page as string) || 1; // Default to page 1 if not provided
+        const limit = 10; // Maximum articles per page
+        const skip = (page - 1) * limit; // Calculate how many articles to skip
 
         if (typeof categories === 'string' && categories) {
             categories = categories.split(',');
@@ -114,6 +117,12 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $sort: { createdAt: -1 }
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
             }
         ]);
 
@@ -123,7 +132,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
         }));
 
-        res.status(200).json({ success: true, posts: formattedPosts });
+        res.status(200).json({ success: true, posts: formattedPosts, currentPage: page });
     } catch (error) {
         console.error('Get All Articles Error:', (error as Error).message);
         next(error);
@@ -131,11 +140,15 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
 };
 
 
+
 // Get Articles by User ID
 export const getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
         const userId = req.params.userId;
+        let page = parseInt(req.query.page as string) || 1; // Default to page 1 if not provided
+        const limit = 10; // Maximum articles per page
+        const skip = (page - 1) * limit; // Calculate how many articles to skip
 
         // Validate and convert userId to ObjectId
         if (!Types.ObjectId.isValid(userId)) {
@@ -215,7 +228,9 @@ export const getArticlesByUser = async (req: Request, res: Response, next: NextF
                     latestComment: { $arrayElemAt: ["$latestComment", 0] }
                 }
             },
-            { $sort: { createdAt: -1 } }
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit }
         ]);
 
         // Format the posts to include the latest comment and remaining comments count
@@ -224,7 +239,7 @@ export const getArticlesByUser = async (req: Request, res: Response, next: NextF
             remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
         }));
 
-        res.status(200).json({ success: true, posts: formattedPosts });
+        res.status(200).json({ success: true, posts: formattedPosts, currentPage: page });
     } catch (error) {
         console.error('Get Articles By User Error:', (error as Error).message);
         next(error);
