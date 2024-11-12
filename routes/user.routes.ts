@@ -35,7 +35,9 @@ router
     */
     .get('/profile/:userId', checkAuth, userController.getUserProfile)
 
-    .get('/', userController.getAllUsers);
+    .get('/', userController.getAllUsers)
+
+    .put('/:userId', checkAuth, userController.editUser)
 
 
 

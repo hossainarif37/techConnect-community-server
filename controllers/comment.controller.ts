@@ -8,14 +8,12 @@ import { IUser } from "../models/user.model";
 exports.createComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const newComment = new Comment(req.body);
-        const response = await newComment.save();
+        const response = await (await newComment.save()).populate('author', '_id name profilePicture');
 
         const articleId = req.body.article;
         await Article.findByIdAndUpdate(articleId, { $push: { comments: newComment._id } });
 
-
-        res.status(201).json({ success: true, comment: response.content })
-
+        res.status(201).json({ success: true, comment: response})
     } catch (error) {
         console.log('Create Comment Controller: ', (error as Error).message);
         next(error)

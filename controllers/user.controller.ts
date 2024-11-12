@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import User from "../models/user.model"
-
+import User, { IUser } from "../models/user.model"
 exports.getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.status(200).json({
@@ -18,7 +17,7 @@ exports.getCurrentUser = async (req: Request, res: Response, next: NextFunction)
 exports.getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-        const user = await User.findById(req.params.userId, { name: 1, profilePicture: 1, followers: 1, following: 1, _id: 0 });
+        const user = await User.findById(req.params.userId, { name: 1, profilePicture: 1, followers: 1, following: 1, _id: 1 });
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
@@ -31,7 +30,7 @@ exports.getUserProfile = async (req: Request, res: Response, next: NextFunction)
 }
 
 
-exports.getAllUsers = async (req: Request, res: Response) => {
+exports.getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const name = req.query.name;
         let query: any = {};
@@ -42,6 +41,25 @@ exports.getAllUsers = async (req: Request, res: Response) => {
         res.status(200).json({ success: true, users });
     } catch (error) {
         console.error('Error fetching all users:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        next(error);
     }
 }
+
+exports.editUser = async (req: Request, res: Response,next: NextFunction) => {
+    try {
+        const userId = req.params.userId;
+
+        if ((req.user as IUser)._id.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to update this user' });
+        }
+       
+        const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true }).select('-password');
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ success: true, user: updatedUser });
+    } catch (error) {
+        console.error('Error updating user info:', error);
+        next(error);
+    }
+};
