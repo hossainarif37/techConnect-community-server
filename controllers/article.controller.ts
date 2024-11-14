@@ -36,7 +36,6 @@ exports.createArticle = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-
 export const getAllArticles = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let categories = req.query.categories;
@@ -54,6 +53,10 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             query.category = { $in: categories.map(category => String(category)) };
         }
 
+        // Count total matching articles to determine if there's a next page
+        const totalCount = await Article.countDocuments(query);
+        const hasMore = page * limit < totalCount;
+
         // Aggregation pipeline to fetch articles with total comments and latest comment
         const posts = await Article.aggregate([
             {
@@ -62,10 +65,10 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             {
                 $lookup: {
                     from: 'users',
-                    let: { authorId: "$author" }, // Use the article's `author` field as a variable
+                    let: { authorId: "$author" },
                     pipeline: [
-                        { $match: { $expr: { $eq: ["$_id", "$$authorId"] } } }, // Match only the specific author
-                        { $project: { _id: 1, name: 1, profilePicture: 1 } } // Project only required fields
+                        { $match: { $expr: { $eq: ["$_id", "$$authorId"] } } },
+                        { $project: { _id: 1, name: 1, profilePicture: 1 } }
                     ],
                     as: 'author'
                 }
@@ -76,8 +79,8 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                     let: { commentIds: "$comments" },
                     pipeline: [
                         { $match: { $expr: { $in: ["$_id", "$$commentIds"] } } },
-                        { $sort: { createdAt: -1 } }, // Sort comments by creation date descending
-                        { $limit: 1 }, // Limit to the latest comment
+                        { $sort: { createdAt: -1 } },
+                        { $limit: 1 },
                         {
                             $lookup: {
                                 from: 'users',
@@ -109,10 +112,10 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                     title: 1,
                     content: 1,
                     category: 1,
-                    author: { $arrayElemAt: ["$author", 0] }, // Get only the required author fields
+                    author: { $arrayElemAt: ["$author", 0] },
                     createdAt: 1,
                     totalComments: { $size: "$comments" },
-                    latestComment: { $arrayElemAt: ["$latestComment", 0] } // Get the latest comment
+                    latestComment: { $arrayElemAt: ["$latestComment", 0] }
                 }
             },
             {
@@ -132,13 +135,12 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
             remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
         }));
 
-        res.status(200).json({ success: true, posts: formattedPosts, currentPage: page });
+        res.status(200).json({ success: true, posts: formattedPosts, currentPage: page, hasMore });
     } catch (error) {
         console.error('Get All Articles Error:', (error as Error).message);
         next(error);
     }
 };
-
 
 
 // Get Articles by User ID
