@@ -169,6 +169,10 @@ export const getArticlesByUser = async (req: Request, res: Response, next: NextF
             query.category = { $in: categories };
         }
 
+        // Count total matching articles to determine if there's a next page
+        const totalCount = await Article.countDocuments(query);
+        const hasMore = page * limit < totalCount;
+
         // Aggregation pipeline to fetch articles with total comments and latest comment
         const posts = await Article.aggregate([
             { $match: query },
@@ -241,12 +245,13 @@ export const getArticlesByUser = async (req: Request, res: Response, next: NextF
             remainingComments: Math.max(post.totalComments - (post.latestComment ? 1 : 0), 0)
         }));
 
-        res.status(200).json({ success: true, posts: formattedPosts, currentPage: page });
+        res.status(200).json({ success: true, posts: formattedPosts, currentPage: page, hasMore });
     } catch (error) {
         console.error('Get Articles By User Error:', (error as Error).message);
         next(error);
     }
 };
+
 
 // Delete an article with its comments
 exports.deleteArticleWithComments = async (req: Request, res: Response, next: NextFunction) => {
