@@ -114,6 +114,7 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
                     category: 1,
                     author: { $arrayElemAt: ["$author", 0] },
                     createdAt: 1,
+                    likes: 1,
                     totalComments: { $size: "$comments" },
                     latestComment: { $arrayElemAt: ["$latestComment", 0] }
                 }
@@ -141,7 +142,6 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 };
-
 
 // Get Articles by User ID
 export const getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -229,6 +229,7 @@ export const getArticlesByUser = async (req: Request, res: Response, next: NextF
                         name: "$author.name",
                         profilePicture: "$author.profilePicture"
                     },
+                    likes: 1,
                     createdAt: 1,
                     totalComments: { $size: "$comments" },
                     latestComment: { $arrayElemAt: ["$latestComment", 0] }
