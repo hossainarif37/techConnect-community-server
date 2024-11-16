@@ -142,7 +142,6 @@ export const getAllArticles = async (req: Request, res: Response, next: NextFunc
     }
 };
 
-
 // Get Articles by User ID
 export const getArticlesByUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
