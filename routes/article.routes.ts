@@ -39,9 +39,9 @@ router
  * 
  * @throws {500} If there's an internal server error
  */
-    .get('/', checkAuth, articleController.getAllArticles)
+    .get('/', articleController.getAllArticles)
 
-    .get('/:userId', checkAuth, articleController.getArticlesByUser)
+    .get('/:userId', articleController.getArticlesByUser)
 
     .delete('/:articleId', checkAuth, articleController.deleteArticleWithComments)
 
