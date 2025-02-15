@@ -45,14 +45,14 @@ exports.getAllUsers = async (req: Request, res: Response, next: NextFunction) =>
     }
 }
 
-exports.editUser = async (req: Request, res: Response,next: NextFunction) => {
+exports.editUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.params.userId;
 
         if ((req.user as IUser)._id.toString() !== userId) {
             return res.status(403).json({ message: 'You are not authorized to update this user' });
         }
-       
+
         const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true }).select('-password');
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });

@@ -30,12 +30,25 @@ exports.registerUser = async (req: Request, res: Response, next: NextFunction) =
                 });
 
                 //* save the user
-                await newUser.save();
+                const user: any = await newUser.save();
+                const payload: any = {
+                    id: user._id,
+                    email: user.email
+                }
 
-                return res.status(201).json({
+                //* Generate jwt token
+                if (!process.env.JWT_SECRET_KEY) {
+                    throw new Error('JWT_SECRET_KEY is not defined in the environment variables');
+                }
+
+                const token = jwt.sign(payload, process.env.JWT_SECRET_KEY as string, { expiresIn: '30d' });
+                res.status(201).send({
                     success: true,
-                    message: 'User registered successfully.'
+                    message: "User registered successfully",
+                    token: `Bearer ${token}`,
+                    user
                 })
+
             } catch (error) {
                 console.log('Register User Controller at Bcrypt function: ', (error as Error).message);
                 next(error)
@@ -54,12 +67,10 @@ exports.loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
 
-
         //* Validate that 'email' and 'password' fields are present in the request body
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Email or Password is required' })
         }
-
 
         const user = await User.findOne({ email });
         if (!user) {
